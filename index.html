@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
 <style>
 
 :root{
@@ -601,29 +602,20 @@ header.site{
 .cta-banner .btn-gold{ position:relative; z-index:1; }
 .cta-note{ font-size:0.85rem; color: var(--ink-soft); margin-top:18px; position:relative; z-index:1;}
 
-/* Booking mock calendar */
+/* Calendly booking embed */
 .booking-mock{
   margin-top: 40px;
   background: rgba(255,255,255,0.65);
   border: 1px solid rgba(61,90,115,0.14);
   border-radius: var(--radius-md);
-  padding: 28px;
-  max-width: 480px;
+  padding: 12px;
+  max-width: 900px;
   margin-left:auto; margin-right:auto;
   position:relative; z-index:1;
   text-align:left;
   box-shadow: var(--shadow-card);
 }
-.booking-mock-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
-.booking-mock-head span{ font-size:0.85rem; color: var(--ink-soft); }
-.slot-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
-.slot{
-  padding: 11px 6px; text-align:center; border-radius:8px;
-  background: #fff; border:1px solid var(--line);
-  font-size:0.82rem; color: var(--ink);
-  cursor:pointer; transition: background .25s ease, border-color .25s ease, color .25s ease;
-}
-.slot:hover{ background: var(--gold); color: #fff; border-color: var(--gold);}
+.calendly-inline-widget{ min-width: 280px; height: 700px; }
 
 /* Who I help */
 .help-grid{
@@ -771,6 +763,9 @@ header.site{
 }
 .form-field input:focus, .form-field textarea:focus{ outline:none; border-color: var(--gold); }
 .contact-info-item{ display:flex; gap:16px; align-items:flex-start; margin-bottom: 24px;}
+a.contact-info-item{ transition: transform .25s ease; }
+a.contact-info-item:hover{ transform: translateX(4px); }
+a.contact-info-item:hover .contact-info-icon{ background: var(--gold); color:#fff; }
 .contact-info-icon{
   width:44px; height:44px; border-radius:50%;
   background: var(--blue-grey); color: var(--navy);
@@ -1176,21 +1171,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
       <div class="eyebrow" style="justify-content:center;">First Wave Session, Free</div>
       <h2>Your First Wave Starts Here</h2>
       <p>Every coaching journey begins with a complimentary 20-minute Clarity Call, a chance to discuss your goals, ask questions, and discover whether coaching is the right fit. No pressure. No obligation. Just a genuine conversation.</p>
-      <a href="#contact" class="btn btn-gold">Schedule My Free Clarity Call</a>
+      <a href="#calendly-embed" class="btn btn-gold">Schedule My Free Clarity Call</a>
 
-      <div class="booking-mock">
-        <div class="booking-mock-head">
-          <strong style="color:var(--navy); font-family:var(--serif); font-weight:400;">Choose a time</strong>
-          <span>This week</span>
-        </div>
-        <div class="slot-grid">
-          <div class="slot">Mon · 10:00</div>
-          <div class="slot">Mon · 2:30</div>
-          <div class="slot">Tue · 9:00</div>
-          <div class="slot">Wed · 11:30</div>
-          <div class="slot">Thu · 3:00</div>
-          <div class="slot">Fri · 1:00</div>
-        </div>
+      <!-- TODO: replace with your real Calendly event URL, e.g. https://calendly.com/your-name/clarity-call -->
+      <div class="booking-mock" id="calendly-embed">
+        <div class="calendly-inline-widget" data-url="https://calendly.com/your-username/clarity-call"></div>
       </div>
       <div class="cta-note">20 minutes · Video call · No cost</div>
     </div>
@@ -1344,10 +1329,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
         <div class="contact-info-icon">✉</div>
         <div><h4>Email</h4><p>hello@carinekayali.com</p></div>
       </div>
-      <div class="contact-info-item">
+      <a class="contact-info-item" href="https://wa.me/9613619103?text=Hi%20Carine%2C%20I%27d%20like%20to%20learn%20more%20about%20your%20coaching%20services." target="_blank" rel="noopener noreferrer">
         <div class="contact-info-icon">💬</div>
-        <div><h4>WhatsApp</h4><p>Available for quick questions</p></div>
-      </div>
+        <div><h4>WhatsApp</h4><p>+961 3 619 103 · Available for quick questions</p></div>
+      </a>
       <div class="contact-info-item">
         <div class="contact-info-icon">◎</div>
         <div>
@@ -1476,5 +1461,6 @@ setInterval(()=>{ showTestimonial((tIndex+1)%testimonials.length); }, 6000);
 // Mobile nav toggle placeholder (links already hidden under 900px; CTA remains visible)
 </script>
 
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 </body>
 </html>
