@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Carine | Self-Talk Editor</title>
-<meta name="description" content="Carine is a Self-Talk Editor. She helps overthinkers edit the inner script that has been keeping them silent, small, or stuck, using The Word Swap Method.">
+<meta name="description" content="Carine is a Self-Talk Editor. She helps overthinkers edit the inner script that has kept them silent, small, or stuck, using The Word Swap Method.">
 <style>
   @font-face {
     font-family: "Fraunces";
@@ -38,20 +38,26 @@
     --serif: "Fraunces", "Iowan Old Style", "Palatino Linotype", Palatino, serif;
     --sans: "InterVar", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-    --measure: 60ch;
-    --page-x: clamp(20px, 6vw, 96px);
-    --shell: 1060px;
-    --section-y: clamp(64px, 11vw, 132px);
+    --page-x: clamp(22px, 6vw, 104px);
+    --shell: 1080px;
+    --note-col: 168px;
+    --body-col: 660px;
+    --gutter: clamp(28px, 5vw, 64px);
+    --section-y: clamp(76px, 13vw, 168px);
   }
 
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+
   body {
     margin: 0;
     background: var(--paper);
     color: var(--ink);
     font-family: var(--sans);
-    font-size: 15px;
+    font-size: 0.9375rem;
     line-height: 1.65;
     font-feature-settings: "kern" 1, "liga" 1;
     -webkit-font-smoothing: antialiased;
@@ -64,33 +70,75 @@
     padding-inline: var(--page-x);
   }
 
-  p { margin: 0 0 1.1em; max-width: var(--measure); }
+  p { margin: 0 0 1.15em; max-width: 62ch; }
   a { color: inherit; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 400; margin: 0; }
+  ::selection { background: rgba(28, 27, 25, 0.12); }
 
-  h1, h2, h3 {
-    font-family: var(--serif);
-    font-weight: 400;
-    letter-spacing: -0.012em;
-    margin: 0;
-  }
-
-  /* ---------- shared type ---------- */
-  .lead {
-    font-size: clamp(1.05rem, 1.9vw, 1.22rem);
-    line-height: 1.6;
-    color: var(--ink);
-  }
-  .meta {
-    font-size: 0.8125rem;
-    letter-spacing: 0.005em;
+  /* ---------- the editing motif ---------- */
+  s, .del {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--grey);
     color: var(--grey);
   }
-  .section-title {
-    font-size: clamp(1.7rem, 3.6vw, 2.2rem);
-    line-height: 1.18;
-    margin-bottom: 0.9em;
+  ins, .ins {
+    text-decoration: none;
+    color: var(--ink);
+    box-shadow: inset 0 -1px 0 var(--rule);
   }
-  .tm { font-size: 0.5em; vertical-align: 0.9em; letter-spacing: 0; }
+
+  /* ---------- two-column manuscript grid ---------- */
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem var(--gutter); }
+  .grid--wide .col { max-width: none; }
+  .note {
+    font-size: 0.8125rem;
+    line-height: 1.55;
+    color: var(--grey);
+    max-width: 42ch;
+    margin: 0 0 1.4rem;
+    padding-left: 14px;
+    border-left: 1px solid var(--rule);
+  }
+  .note b { font-weight: 500; color: var(--ink); }
+  .col { min-width: 0; max-width: var(--body-col); }
+
+  @media (min-width: 1000px) {
+    .grid {
+      grid-template-columns: var(--note-col) minmax(0, var(--body-col));
+      align-items: start;
+    }
+    .note {
+      grid-column: 1;
+      text-align: right;
+      padding-left: 0;
+      padding-right: 15px;
+      border-left: 0;
+      border-right: 1px solid var(--rule);
+      margin: 0;
+      max-width: none;
+    }
+    .col { grid-column: 2; }
+    .note + .col { grid-row: 1; }
+    .grid--wide { grid-template-columns: var(--note-col) minmax(0, 1fr); }
+  }
+
+  /* ---------- section frame ---------- */
+  .section { padding-block: var(--section-y); border-top: 1px solid var(--rule); }
+  .section:first-of-type { border-top: 0; }
+  .section-head {
+    font-size: clamp(1.9rem, 4.6vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.018em;
+    margin-bottom: clamp(1.6rem, 4vw, 2.6rem);
+    max-width: 16ch;
+  }
+  .lead {
+    font-size: clamp(1.08rem, 1.7vw, 1.32rem);
+    line-height: 1.5;
+    max-width: 40ch;
+  }
+  .tm { font-size: 0.42em; vertical-align: 0.85em; letter-spacing: 0; }
 
   /* ---------- buttons ---------- */
   .btn {
@@ -99,8 +147,8 @@
     font-size: 0.95rem;
     font-weight: 500;
     line-height: 1;
-    letter-spacing: 0.003em;
-    padding: 15px 24px;
+    letter-spacing: 0.004em;
+    padding: 16px 26px;
     border: 1px solid var(--blue);
     background: var(--blue);
     color: var(--paper);
@@ -109,140 +157,137 @@
     cursor: pointer;
     transition: filter 0.18s ease, background-color 0.18s ease;
   }
-  .btn:hover { filter: brightness(0.88); }
+  .btn:hover { filter: brightness(0.9); }
   .btn:focus-visible {
     outline: 2px solid var(--paper);
     outline-offset: 0;
     box-shadow: 0 0 0 4px var(--ink);
   }
+  .btn-outline { background: transparent; color: var(--blue); }
+  .btn-outline:hover { background: rgba(53, 82, 107, 0.06); filter: none; }
+  .btn-lg { padding: 18px 34px; font-size: 1rem; }
 
-  .btn-outline {
-    background: transparent;
-    color: var(--blue);
-    border: 1px solid var(--blue);
-  }
-  .btn-outline:hover { background: rgba(53, 82, 107, 0.07); }
-
-  /* ---------- header ---------- */
+  /* ---------- masthead ---------- */
   .masthead {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .masthead .shell {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 20px;
-    padding-top: clamp(20px, 4vw, 34px);
-    padding-bottom: clamp(20px, 4vw, 34px);
+    gap: 18px;
+    padding-block: clamp(16px, 2.6vw, 22px);
   }
   .wordmark {
     font-family: var(--serif);
-    font-size: 1.15rem;
+    font-size: 1.16rem;
     letter-spacing: -0.01em;
   }
-  .masthead .btn { padding: 11px 18px; font-size: 0.85rem; }
+  .masthead .btn { padding: 11px 18px; font-size: 0.82rem; }
 
   /* ---------- hero ---------- */
-  .hero { padding-top: clamp(28px, 7vw, 80px); padding-bottom: var(--section-y); }
+  .hero { padding-top: clamp(56px, 12vw, 132px); padding-bottom: var(--section-y); }
   .hero h1 {
-    font-size: clamp(2.1rem, 6.2vw, 3.55rem);
-    line-height: 1.1;
-    max-width: 17ch;
+    font-size: clamp(2.7rem, 8.4vw, 5.1rem);
+    line-height: 1.02;
+    letter-spacing: -0.026em;
+    max-width: 15ch;
+    text-wrap: balance;
   }
   .hero .subline {
-    margin-top: 1.5rem;
+    margin-top: clamp(1.6rem, 3vw, 2.1rem);
     color: var(--grey);
-    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+    font-size: clamp(0.95rem, 1.5vw, 1.06rem);
     max-width: none;
   }
-  .hero .cta-row { margin-top: 2.4rem; }
+  .hero .cta-row { margin-top: clamp(2rem, 4vw, 2.8rem); }
 
-  /* Hero headline is visible by default. The one page-load reveal is applied
-     by script only when motion is allowed, so the headline can never be
-     left hidden if the animation does not run. */
-  @keyframes settle {
-    from { opacity: 0; transform: translateY(0.42em); }
-    to   { opacity: 1; transform: none; }
-  }
-
-  /* ---------- rule between sections ---------- */
-  .divider { border: 0; border-top: 1px solid var(--rule); margin: 0; }
-
-  section { padding-top: var(--section-y); padding-bottom: var(--section-y); }
-
-  /* ---------- about ---------- */
-  .about h2 {
-    font-size: clamp(1.7rem, 3.6vw, 2.2rem);
-    line-height: 1.2;
-    max-width: 20ch;
-  }
-  .about-body { margin-top: 1.6rem; }
-  .about-body p { font-size: 1.02rem; }
-  @media (min-width: 880px) {
-    .about-body { margin-left: 33%; max-width: 46ch; }
-  }
-
-  /* ---------- pull quote ---------- */
-  .pullquote {
-    padding-top: clamp(48px, 8vw, 88px);
-    padding-bottom: clamp(48px, 8vw, 88px);
-  }
-  .pullquote p {
+  /* ---------- specimen band (the method, in one line) ---------- */
+  .specimen { padding-block: clamp(64px, 10vw, 128px); border-top: 1px solid var(--rule); }
+  .specimen .grid { row-gap: 1rem; }
+  .specimen .swap {
     font-family: var(--serif);
-    font-style: italic;
-    font-weight: 400;
-    font-size: clamp(1.45rem, 3.4vw, 2rem);
-    line-height: 1.32;
-    letter-spacing: -0.01em;
-    max-width: 24ch;
-    color: var(--ink);
+    font-size: clamp(1.7rem, 4.6vw, 3rem);
+    line-height: 1.16;
+    letter-spacing: -0.014em;
+    max-width: 26ch;
     margin: 0;
   }
+  .specimen .swap .row { display: block; }
+  .specimen .swap .row + .row { margin-top: 0.3em; }
+
+  /* ---------- about ---------- */
+  .about .col p { font-size: 1.05rem; max-width: 46ch; }
+  .about .col p + p { margin-top: 1.15em; }
+
+  /* ---------- pull quote ---------- */
+  .quote { padding-block: clamp(60px, 10vw, 120px); border-top: 1px solid var(--rule); }
+  .quote .col p {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(1.65rem, 4.2vw, 2.75rem);
+    line-height: 1.24;
+    letter-spacing: -0.012em;
+    max-width: 22ch;
+    margin: 0;
+  }
+  .quote .row { display: block; }
 
   /* ---------- method ---------- */
-  .method .lead { margin-bottom: clamp(2.4rem, 5vw, 3.4rem); max-width: 52ch; }
-  .steps {
-    display: grid;
-    gap: clamp(2rem, 4vw, 2.75rem);
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 760px) {
-    .steps { grid-template-columns: repeat(3, 1fr); gap: clamp(1.5rem, 3vw, 2.5rem); }
-  }
-  .step { border-top: 1px solid var(--rule); padding-top: 0.9rem; }
-  .step .num {
+  .method .worked {
     font-family: var(--serif);
-    font-size: 0.95rem;
-    color: var(--grey);
-    display: block;
-    margin-bottom: 0.9rem;
+    font-size: clamp(1.45rem, 3.4vw, 2.15rem);
+    line-height: 1.22;
+    letter-spacing: -0.012em;
+    max-width: 20ch;
+    margin: clamp(2rem, 5vw, 3rem) 0 clamp(2.6rem, 6vw, 4rem);
   }
-  .step h3 { font-size: 1.2rem; font-weight: 500; margin-bottom: 0.6rem; }
-  .step p { font-size: 0.95rem; margin: 0; color: var(--ink); }
+  .method .worked .row { display: block; }
+  .method .worked .row + .row { margin-top: 0.28em; }
 
-  /* ---------- waves / kit ---------- */
+  .steps { display: grid; grid-template-columns: 1fr; gap: clamp(2.4rem, 5vw, 3rem); }
+  @media (min-width: 720px) {
+    .steps { grid-template-columns: repeat(3, 1fr); gap: clamp(1.6rem, 3vw, 2.4rem); }
+  }
+  .step { border-top: 1px solid var(--ink); padding-top: 1.1rem; }
+  .step .n {
+    display: block;
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5vw, 3.4rem);
+    line-height: 1;
+    color: var(--grey);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.7rem;
+  }
+  .step h3 { font-size: 1.22rem; font-weight: 500; margin-bottom: 0.5rem; }
+  .step p { font-size: 0.92rem; margin: 0; }
+
+  /* ---------- kit ---------- */
   .kit .frame {
     font-family: var(--serif);
-    font-size: clamp(1.15rem, 2.2vw, 1.4rem);
-    line-height: 1.45;
-    font-weight: 400;
-    max-width: 34ch;
-    margin: 0 0 1.6rem;
+    font-size: clamp(1.3rem, 2.6vw, 1.7rem);
+    line-height: 1.34;
+    letter-spacing: -0.01em;
+    max-width: 24ch;
+    margin: 0 0 1.8rem;
   }
-  .kit-body { max-width: 52ch; }
-  .kit-body p { font-size: 0.98rem; }
+  .kit .frame .row { display: block; }
+  .kit-list { max-width: 52ch; }
+  .kit-list p { font-size: 1rem; }
   .kit-form {
-    margin-top: 2rem;
+    margin-top: 2.2rem;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     align-items: flex-end;
-    max-width: 480px;
+    max-width: 500px;
   }
-  .kit-form .field { flex: 1 1 220px; }
-  .kit-form label {
-    display: block;
-    font-size: 0.8125rem;
-    color: var(--grey);
-    margin-bottom: 8px;
-  }
+  .kit-form .field { flex: 1 1 230px; }
+  .kit-form label { display: block; font-size: 0.8125rem; color: var(--grey); margin-bottom: 8px; }
   .kit-form input[type="email"] {
     width: 100%;
     font-family: var(--sans);
@@ -251,7 +296,7 @@
     background: var(--paper);
     border: 1px solid var(--grey);
     border-radius: 0;
-    padding: 13px 14px;
+    padding: 14px 14px;
     line-height: 1;
   }
   .kit-form input[type="email"]::placeholder { color: var(--grey); }
@@ -261,68 +306,40 @@
     border-color: var(--ink);
   }
   .kit-note { font-size: 0.8125rem; color: var(--grey); margin: 12px 0 0; }
-  .kit-note[data-state="error"] { color: var(--ink); }
-  .kit-done { margin-top: 2rem; max-width: 46ch; }
-  .kit-done p { font-family: var(--serif); font-size: 1.15rem; font-style: italic; margin: 0; }
+  .kit-done { margin-top: 2.2rem; max-width: 46ch; }
+  .kit-done p { font-family: var(--serif); font-style: italic; font-size: 1.2rem; margin: 0; }
 
   /* ---------- pricing ---------- */
-  .pricing .lead { max-width: 54ch; margin-bottom: clamp(2.6rem, 5vw, 3.6rem); }
-  .tiers {
-    display: grid;
-    gap: clamp(28px, 5vw, 44px);
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-  @media (min-width: 900px) {
-    .tiers { grid-template-columns: 1fr 1fr 1.16fr; gap: clamp(24px, 3.5vw, 44px); }
+  .pricing .lead { margin-bottom: clamp(2.6rem, 6vw, 4rem); }
+  .tiers { display: grid; grid-template-columns: 1fr; gap: clamp(30px, 5vw, 46px); align-items: start; }
+  @media (min-width: 940px) {
+    .tiers { grid-template-columns: 1fr 1fr 1.18fr; gap: clamp(26px, 3.5vw, 46px); }
   }
 
-  .tier { padding-top: 26px; border-top: 1px solid var(--rule); }
+  .tier { padding-top: 28px; border-top: 1px solid var(--rule); }
   .tier:first-child { padding-top: 0; border-top: 0; }
-  @media (min-width: 900px) {
-    .tier { padding-top: 6px; border-top: 0; }
-  }
+  @media (min-width: 940px) { .tier { padding-top: 4px; border-top: 0; } }
 
-  .tier h3 { font-weight: 500; }
-  .tier .price {
-    font-family: var(--serif);
-    margin: 0.55rem 0 0.15rem;
-    line-height: 1;
-  }
+  .tier h3 { font-weight: 500; letter-spacing: -0.008em; }
+  .tier .price { font-family: var(--serif); line-height: 1; margin: 0.7rem 0 0.2rem; letter-spacing: -0.02em; }
   .tier .per { font-size: 0.8125rem; color: var(--grey); }
-  .tier ul { list-style: none; margin: 1.5rem 0 0; padding: 0; }
-  .tier li {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    padding: 0.7rem 0;
-    border-top: 1px solid var(--rule);
-  }
+  .tier ul { list-style: none; margin: 1.6rem 0 0; padding: 0; }
+  .tier li { font-size: 0.9rem; line-height: 1.5; padding: 0.72rem 0; border-top: 1px solid var(--rule); }
   .tier li:first-child { border-top: 0; padding-top: 0; }
-  .tier .focus {
-    font-size: 0.9rem;
-    line-height: 1.55;
-    margin: 1.4rem 0 0;
-    max-width: none;
-  }
+  .tier .focus { font-size: 0.9rem; line-height: 1.55; margin: 1.5rem 0 0; max-width: none; }
   .tier .focus b { font-weight: 600; }
-  .tier .btn { margin-top: 1.7rem; width: 100%; text-align: center; }
+  .tier .btn { margin-top: 1.9rem; width: 100%; text-align: center; }
 
-  /* First Draft: the quiet entry option. No container. */
   .tiers .tier--lean h3 { font-weight: 400; font-size: 1.12rem; }
-  .tiers .tier--lean .price { font-size: 1.5rem; }
+  .tiers .tier--lean .price { font-size: 1.6rem; }
   .tiers .tier--lean .btn { background: transparent; color: var(--blue); }
 
-  /* The Rewrite: mid weight. */
-  .tiers .tier--mid h3 { font-size: 1.24rem; }
-  .tiers .tier--mid .price { font-size: 1.66rem; }
+  .tiers .tier--mid h3 { font-size: 1.26rem; }
+  .tiers .tier--mid .price { font-size: 1.85rem; }
 
-  /* The Final Manuscript: accent border, badge, more weight, lifted. */
-  .tiers .tier--top {
-    border: 2px solid var(--blue);
-    padding: 30px 26px 34px;
-  }
-  @media (min-width: 900px) {
-    .tiers .tier--top { margin-top: -18px; padding: 26px 30px 38px; }
+  .tiers .tier--top { border: 2px solid var(--blue); padding: 32px 26px 36px; }
+  @media (min-width: 940px) {
+    .tiers .tier--top { margin-top: -22px; padding: 28px 30px 40px; }
   }
   .tier--top .badge {
     display: inline-block;
@@ -332,55 +349,81 @@
     font-weight: 500;
     letter-spacing: 0.015em;
     padding: 5px 11px;
-    margin-bottom: 1.2rem;
+    margin-bottom: 1.3rem;
   }
-  .tiers .tier--top h3 { font-size: 1.42rem; }
-  .tiers .tier--top .price { font-size: 1.98rem; }
-  .tier--top li { padding: 0.82rem 0; }
+  .tiers .tier--top h3 { font-size: 1.5rem; }
+  .tiers .tier--top .price { font-size: clamp(2.3rem, 4vw, 2.9rem); }
+  .tier--top li { padding: 0.84rem 0; }
   .tier--top .focus { font-size: 0.95rem; }
 
   /* ---------- booking ---------- */
-  .booking {
-    background: var(--ink);
-    color: var(--paper);
+  .booking { background: var(--ink); color: var(--paper); border-top: 0; }
+  .booking .grid .note {
+    color: rgba(250, 248, 244, 0.5);
+    border-color: rgba(250, 248, 244, 0.22);
   }
+  .booking .note b { color: var(--paper); }
   .booking h2 {
     color: var(--paper);
-    font-size: clamp(1.9rem, 4.6vw, 2.7rem);
-    line-height: 1.14;
-    max-width: 16ch;
+    font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
   }
-  .booking p { color: rgba(250, 248, 244, 0.72); margin-top: 1.2rem; font-size: 1.05rem; }
-  .booking .btn { margin-top: 2.2rem; }
+  .booking .col p { color: rgba(250, 248, 244, 0.68); margin-top: 1.2rem; font-size: 1.05rem; }
+  .booking .col { max-width: none; }
+
+  .cal-wrap {
+    margin-top: clamp(2.4rem, 5vw, 3.4rem);
+    border: 1px solid rgba(250, 248, 244, 0.18);
+    background: var(--ink);
+    min-height: 640px;
+  }
+  .calendly-inline-widget { min-width: 320px; height: 680px; }
+  .cal-fallback {
+    display: block;
+    padding: 28px;
+    color: var(--paper);
+    box-shadow: inset 0 -1px 0 rgba(250, 248, 244, 0.4);
+    text-decoration: none;
+    width: max-content;
+    max-width: 100%;
+  }
 
   /* ---------- footer ---------- */
-  footer {
-    padding-top: clamp(48px, 8vw, 76px);
-    padding-bottom: clamp(48px, 8vw, 76px);
+  footer { border-top: 1px solid var(--rule); }
+  footer .shell {
+    padding-block: clamp(44px, 8vw, 72px);
     display: flex;
     flex-wrap: wrap;
-    gap: 18px 40px;
+    gap: 18px 44px;
     align-items: baseline;
     justify-content: space-between;
   }
-  footer .fm { font-family: var(--serif); font-size: 1.05rem; line-height: 1.4; }
+  footer .fm { font-family: var(--serif); font-size: 1.1rem; line-height: 1.35; }
   footer .fm span { display: block; font-family: var(--sans); font-size: 0.8rem; color: var(--grey); }
   footer nav { display: flex; gap: 22px; }
   footer nav a { color: var(--grey); text-decoration: none; font-size: 0.9rem; }
   footer nav a:hover { color: var(--ink); }
-  footer .legal { color: var(--grey); font-size: 0.8rem; flex-basis: 100%; margin: 0; }
+  footer .legal { color: var(--grey); font-size: 0.8rem; flex-basis: 100%; margin: 0; max-width: none; }
 
   :where(a):focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+  /* hero reveal is applied by script; guarded so the headline is never left hidden */
+  @keyframes settle {
+    from { opacity: 0; transform: translateY(0.4em); clip-path: inset(0 0 12% 0); }
+    to   { opacity: 1; transform: none; clip-path: inset(0 0 -2% 0); }
+  }
 </style>
 </head>
 <body>
 
-<header class="shell masthead">
-  <div class="wordmark">Carine</div>
-  <a class="btn" href="https://calendly.com/carine-selftalk/session">Book a session</a>
+<header class="masthead">
+  <div class="shell">
+    <div class="wordmark">Carine</div>
+    <a class="btn" href="#book">Book a session</a>
+  </div>
 </header>
-
-<hr class="divider">
 
 <main>
   <!-- 1. HERO -->
@@ -388,157 +431,206 @@
     <h1 id="hero-heading">I help overthinkers edit the inner script that&rsquo;s been keeping them silent, small, or stuck.</h1>
     <p class="subline">Carine &mdash; Self-Talk Editor &middot; The Word Swap Method</p>
     <div class="cta-row">
-      <a class="btn" href="https://calendly.com/carine-selftalk/session">Book a session</a>
+      <a class="btn btn-lg" href="#book">Book a session</a>
     </div>
   </section>
 
-  <hr class="divider">
+  <!-- specimen: the method in one line -->
+  <section class="specimen shell" aria-label="An example word swap">
+    <div class="grid">
+      <p class="note">One sentence, caught and rewritten. This is the whole method.</p>
+      <div class="col">
+        <p class="swap">
+          <span class="row"><s>I always say the wrong thing.</s></span>
+          <span class="row"><ins>I&rsquo;m still finding the words.</ins></span>
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- 2. ABOUT -->
-  <section class="about shell" aria-labelledby="about-heading">
-    <h2 id="about-heading">She built the method for herself first.</h2>
-    <div class="about-body">
-      <p>Carine spent years watching how one sentence, repeated quietly, decided how much of her stayed in the room.</p>
-      <p>The Word Swap Method is the system she wrote to work with that. It is an operating manual, not a recovery story.</p>
-      <p>She is an observer and an emotional analyst before she is anything else. She listens, follows a pattern back to its first line, and helps you change the wording without judging the person who wrote it.</p>
+  <section class="section about" aria-labelledby="about-heading">
+    <div class="shell grid">
+      <p class="note">On method, not recovery. She wrote the system before she taught it.</p>
+      <div class="col">
+        <h2 class="section-head" id="about-heading">She built the method for herself first.</h2>
+        <p>Carine spent years watching how one sentence, repeated quietly, decided how much of her stayed in the room.</p>
+        <p>The Word Swap Method is the system she wrote to work with that. It is an operating manual, not a recovery story.</p>
+        <p>She is an observer and an emotional analyst before she is anything else. She listens, follows a pattern back to its first line, and helps you change the wording without judging the person who wrote it.</p>
+      </div>
     </div>
   </section>
-
-  <hr class="divider">
 
   <!-- pull quote -->
-  <section class="pullquote shell">
-    <p>The sentence comes first. The silence comes after.</p>
+  <section class="quote shell">
+    <div class="grid">
+      <p class="note">Overthinking is a drafting problem, not a character one.</p>
+      <div class="col">
+        <p>
+          <span class="row">The sentence comes first.</span>
+          <span class="row">The silence comes after.</span>
+        </p>
+      </div>
+    </div>
   </section>
-
-  <hr class="divider">
 
   <!-- 3. THE METHOD -->
-  <section class="method shell" aria-labelledby="method-heading">
-    <h2 class="section-title" id="method-heading">The Word Swap Method<span class="tm">&trade;</span></h2>
-    <p class="lead">Every session follows the same shape. You learn it once, then run it on your own.</p>
-    <div class="steps">
-      <div class="step">
-        <span class="num">01</span>
-        <h3>Catch it</h3>
-        <p>We find the exact sentence you tell yourself. Not the mood. The words, written down in your own phrasing.</p>
-      </div>
-      <div class="step">
-        <span class="num">02</span>
-        <h3>Cost it</h3>
-        <p>We look at what that sentence has been buying you and what it has been costing. Where it makes you go quiet. What it talks you out of.</p>
-      </div>
-      <div class="step">
-        <span class="num">03</span>
-        <h3>Edit it</h3>
-        <p>We rewrite it into a line you would actually say. True, plain, and usable in the moment it matters.</p>
+  <section class="section method" aria-labelledby="method-heading">
+    <div class="shell grid grid--wide">
+      <p class="note">Learn it once. Run it on your own after that.</p>
+      <div class="col">
+        <h2 class="section-head" id="method-heading">The Word Swap Method<span class="tm">&trade;</span></h2>
+        <p class="lead">Every session follows the same shape. Catch the sentence. See what it costs. Rewrite it.</p>
+
+        <p class="worked">
+          <span class="row"><s>I always say the wrong thing.</s></span>
+          <span class="row"><ins>I&rsquo;m still finding the words.</ins></span>
+        </p>
+
+        <div class="steps">
+          <div class="step">
+            <span class="n">01</span>
+            <h3>Catch it</h3>
+            <p>We find the exact sentence you tell yourself. Not the mood. The words, written down in your own phrasing.</p>
+          </div>
+          <div class="step">
+            <span class="n">02</span>
+            <h3>Cost it</h3>
+            <p>We look at what that sentence has been buying you and what it has been costing. Where it makes you go quiet. What it talks you out of.</p>
+          </div>
+          <div class="step">
+            <span class="n">03</span>
+            <h3>Edit it</h3>
+            <p>We rewrite it into a line you would actually say. True, plain, and usable in the moment it matters.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
-
-  <hr class="divider">
 
   <!-- 4. WAVES & THE MENTAL FIRST AID KIT -->
-  <section class="kit shell" aria-labelledby="kit-heading">
-    <h2 class="section-title" id="kit-heading">Waves, and the Mental First Aid Kit</h2>
-    <p class="frame">The Word Swap Method helps you rewrite the story before it spirals. The Mental First Aid Kit is what you reach for when the wave already hit.</p>
-    <div class="kit-body">
-      <p>The Kit is a set of worksheets for the moment itself. Stress cycle mapping. Your triggers and early warning signs. A crisis card. A self-care checklist. Feeling-swap cards.</p>
-      <p>It works on its own, apart from ongoing coaching, and it asks less of you to begin.</p>
-    </div>
+  <section class="section kit" aria-labelledby="kit-heading">
+    <div class="shell grid">
+      <p class="note">Lower commitment. No sessions. Reach for it in the moment.</p>
+      <div class="col">
+        <h2 class="section-head" id="kit-heading">Waves, and the Mental First Aid Kit</h2>
+        <p class="frame">
+          <span class="row">The Word Swap Method helps you rewrite the story before it spirals.</span>
+          <span class="row">The Mental First Aid Kit is what you reach for when the wave already hit.</span>
+        </p>
+        <div class="kit-list">
+          <p>The Kit is a set of worksheets for the moment itself. Stress cycle mapping. Your triggers and early warning signs. A crisis card. A self-care checklist. Feeling-swap cards.</p>
+          <p>It works on its own, apart from ongoing coaching, and it asks less of you to begin.</p>
+        </div>
 
-    <form class="kit-form" id="kit-form" novalidate>
-      <div class="field">
-        <label for="kit-email">Where should the Kit go?</label>
-        <input type="email" id="kit-email" name="email" placeholder="you@email.com" autocomplete="email" required>
+        <form class="kit-form" id="kit-form" novalidate>
+          <div class="field">
+            <label for="kit-email">Where should the Kit go?</label>
+            <input type="email" id="kit-email" name="email" placeholder="you@email.com" autocomplete="email" required>
+          </div>
+          <button type="submit" class="btn btn-outline">Get the kit</button>
+        </form>
+        <p class="kit-note" id="kit-note">One email, with the download link.</p>
+
+        <div class="kit-done" id="kit-done" hidden>
+          <p id="kit-done-text">Check your inbox. The Kit is on its way.</p>
+        </div>
       </div>
-      <button type="submit" class="btn btn-outline">Get the kit</button>
-    </form>
-    <p class="kit-note" id="kit-note">One email, with the download link.</p>
-
-    <div class="kit-done" id="kit-done" hidden>
-      <p id="kit-done-text">Check your inbox. The Kit is on its way.</p>
     </div>
   </section>
 
-  <hr class="divider">
-
   <!-- 5. PACKAGES & PRICING -->
-  <section class="pricing shell" aria-labelledby="pricing-heading">
-    <h2 class="section-title" id="pricing-heading">Packages</h2>
-    <p class="lead">Three ways to work together, one to one. The method is the same in each. What changes is how much time you have inside it, and how much support runs between sessions.</p>
+  <section class="section pricing" aria-labelledby="pricing-heading">
+    <div class="shell grid grid--wide">
+      <p class="note">Same method in every tier. Time inside it and support between sessions are what change.</p>
+      <div class="col">
+        <h2 class="section-head" id="pricing-heading">Packages</h2>
+        <p class="lead">Three ways to work together, one to one.</p>
 
-    <div class="tiers">
-      <article class="tier tier--lean" aria-labelledby="tier-1">
-        <h3 id="tier-1">First Draft</h3>
-        <div class="price">$360</div>
-        <div class="per">$90 per session</div>
-        <ul>
-          <li>4 sessions over 4 weeks</li>
-          <li>45 minutes each, one to one</li>
-          <li>No between-session support</li>
-        </ul>
-        <p class="focus"><b>Focus.</b> Catch one recurring self-talk pattern and rewrite it.</p>
-        <a class="btn" href="https://calendly.com/carine-selftalk/session">Book a session</a>
-      </article>
+        <div class="tiers">
+          <article class="tier tier--lean" aria-labelledby="tier-1">
+            <h3 id="tier-1">First Draft</h3>
+            <div class="price">$360</div>
+            <div class="per">$90 per session</div>
+            <ul>
+              <li>4 sessions over 4 weeks</li>
+              <li>45 minutes each, one to one</li>
+              <li>No between-session support</li>
+            </ul>
+            <p class="focus"><b>Focus.</b> Catch one recurring self-talk pattern and rewrite it.</p>
+            <a class="btn" href="#book">Book a session</a>
+          </article>
 
-      <article class="tier tier--mid" aria-labelledby="tier-2">
-        <h3 id="tier-2">The Rewrite</h3>
-        <div class="price">$510</div>
-        <div class="per">$85 per session</div>
-        <ul>
-          <li>6 sessions over 6 weeks</li>
-          <li>45 minutes each, one to one</li>
-          <li>Async voice or text check-in once a week</li>
-          <li>A personal self-talk audit after session one</li>
-        </ul>
-        <p class="focus"><b>Focus.</b> Apply the method to two or three real-life triggers as they happen.</p>
-        <a class="btn" href="https://calendly.com/carine-selftalk/session">Book a session</a>
-      </article>
+          <article class="tier tier--mid" aria-labelledby="tier-2">
+            <h3 id="tier-2">The Rewrite</h3>
+            <div class="price">$510</div>
+            <div class="per">$85 per session</div>
+            <ul>
+              <li>6 sessions over 6 weeks</li>
+              <li>45 minutes each, one to one</li>
+              <li>Async voice or text check-in once a week</li>
+              <li>A personal self-talk audit after session one</li>
+            </ul>
+            <p class="focus"><b>Focus.</b> Apply the method to two or three real-life triggers as they happen.</p>
+            <a class="btn" href="#book">Book a session</a>
+          </article>
 
-      <article class="tier tier--top" aria-labelledby="tier-3">
-        <span class="badge">Most popular</span>
-        <h3 id="tier-3">The Final Manuscript</h3>
-        <div class="price">$680</div>
-        <div class="per">$85 per session</div>
-        <ul>
-          <li>8 sessions over 8 to 10 weeks</li>
-          <li>50 minutes each, one to one</li>
-          <li>Priority async access, unlimited check-ins</li>
-          <li>A custom Word Swap field guide built from your own sessions</li>
-          <li>Early access to future tools</li>
-        </ul>
-        <p class="focus"><b>Focus.</b> A full reset across judgment, self-worth, self-criticism, and speaking up.</p>
-        <a class="btn" href="https://calendly.com/carine-selftalk/session">Book a session</a>
-      </article>
+          <article class="tier tier--top" aria-labelledby="tier-3">
+            <span class="badge">Most popular</span>
+            <h3 id="tier-3">The Final Manuscript</h3>
+            <div class="price">$680</div>
+            <div class="per">$85 per session</div>
+            <ul>
+              <li>8 sessions over 8 to 10 weeks</li>
+              <li>50 minutes each, one to one</li>
+              <li>Priority async access, unlimited check-ins</li>
+              <li>A custom Word Swap field guide built from your own sessions</li>
+              <li>Early access to future tools</li>
+            </ul>
+            <p class="focus"><b>Focus.</b> A full reset across judgment, self-worth, self-criticism, and speaking up.</p>
+            <a class="btn" href="#book">Book a session</a>
+          </article>
+        </div>
+      </div>
     </div>
   </section>
 </main>
 
 <!-- 6. BOOKING -->
-<section class="booking" aria-labelledby="booking-heading">
-  <div class="shell">
-    <h2 id="booking-heading">Ready to start editing?</h2>
-    <p>Book a 45-minute session. We begin with one sentence.</p>
-    <a class="btn" href="https://calendly.com/carine-selftalk/session">Book a session</a>
+<section class="section booking" id="book" aria-labelledby="booking-heading">
+  <div class="shell grid grid--wide">
+    <p class="note">A 45-minute session. We begin with one sentence.</p>
+    <div class="col">
+      <h2 id="booking-heading">Ready to start editing?</h2>
+      <p>Pick a time below. Bring the sentence you catch yourself saying most.</p>
+      <div class="cal-wrap">
+        <div class="calendly-inline-widget"
+             data-url="https://calendly.com/carine-selftalk/session?hide_gdpr_banner=1&background_color=1c1b19&text_color=faf8f4&primary_color=35526b">
+          <a class="cal-fallback" href="https://calendly.com/carine-selftalk/session">Open the booking calendar</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<footer class="shell">
-  <div class="fm">Carine<span>Self-Talk Editor</span></div>
-  <nav aria-label="Social">
-    <a href="https://instagram.com/carine.selftalk">Instagram</a>
-    <a href="https://www.tiktok.com/@carine.selftalk">TikTok</a>
-  </nav>
-  <p class="legal">The Word Swap Method is a trademark of Carine. &copy; 2026.</p>
+<footer>
+  <div class="shell">
+    <div class="fm">Carine<span>Self-Talk Editor</span></div>
+    <nav aria-label="Social">
+      <a href="https://instagram.com/carine.selftalk">Instagram</a>
+      <a href="https://www.tiktok.com/@carine.selftalk">TikTok</a>
+    </nav>
+    <p class="legal">The Word Swap Method is a trademark of Carine. &copy; 2026.</p>
+  </div>
 </footer>
 
+<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 <script>
   (function () {
     var heading = document.getElementById("hero-heading");
     try {
       if (heading && window.matchMedia("(prefers-reduced-motion: no-preference)").matches) {
-        heading.style.animation = "settle 0.82s cubic-bezier(0.2, 0.6, 0.15, 1) both";
+        heading.style.animation = "settle 0.9s cubic-bezier(0.2, 0.65, 0.1, 1) both";
       }
     } catch (e) {}
 
@@ -554,11 +646,9 @@
       var value = input.value.trim();
       if (!valid.test(value)) {
         note.textContent = "That address looks unfinished. Check it and try again.";
-        note.setAttribute("data-state", "error");
         input.focus();
         return;
       }
-      note.setAttribute("data-state", "ok");
       form.hidden = true;
       note.hidden = true;
       doneText.textContent = "Check your inbox. The Kit is on its way to " + value + ".";
