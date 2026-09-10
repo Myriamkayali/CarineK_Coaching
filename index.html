@@ -244,7 +244,7 @@
 
   /* ---------- method ---------- */
   .method h2 { margin-bottom: 0.5em; }
-  .method-intro { max-width: 54ch; margin-bottom: clamp(2.4rem, 5vw, 3.4rem); }
+  .method-intro { max-width: 54ch; margin-bottom: clamp(1.6rem, 3vw, 2rem); }
   .steps { display: grid; gap: 18px; }
   @media (min-width: 820px) { .steps { grid-template-columns: repeat(3, 1fr); } }
   .step {
@@ -390,18 +390,95 @@
   footer nav { display: flex; gap: 20px; }
   footer nav a { color: var(--muted); text-decoration: none; font-size: 0.92rem; font-weight: 600; }
   footer nav a:hover { color: var(--blue-ink); }
-  footer .legal { flex-basis: 100%; margin: 0; font-size: 0.82rem; color: var(--muted); }
 
   :where(a):focus-visible { outline: 3px solid var(--blue-ink); outline-offset: 2px; border-radius: 3px; }
 
-  /* ---------- reveal (gentle, robust: JS-gated + safety timeout) ---------- */
+  /* ---------- scroll progress bar ---------- */
+  .progress {
+    position: fixed; top: 0; left: 0; z-index: 50;
+    height: 3px; width: 100%;
+    background: var(--blue-ink);
+    transform: scaleX(0); transform-origin: 0 50%;
+    transition: transform 0.1s linear;
+  }
+  .masthead { transition: box-shadow 0.25s ease; }
+  .masthead.is-scrolled { box-shadow: 0 8px 26px -14px rgba(53, 87, 122, 0.3); }
+
+  /* ---------- card interactions ---------- */
+  .tier, .step, .work-card, .path { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+  @media (hover: hover) {
+    .step:hover, .path:hover, .work-card:hover { transform: translateY(-4px); }
+    .tier:not(.tier--popular):hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+    .tier--popular:hover { transform: translateY(-6px); }
+    .swap-card { cursor: pointer; }
+    .swap-card:hover { transform: translateY(-2px); box-shadow: 0 1px 2px rgba(53,87,122,.05), 0 30px 56px -26px rgba(53,87,122,.34); }
+  }
+
+  /* ---------- pinned "sticky scroll" method section ---------- */
+  @media (min-width: 1040px) {
+    .method-inner { display: grid; grid-template-columns: 340px 1fr; column-gap: clamp(48px, 6vw, 90px); align-items: start; }
+    .method-head { position: sticky; top: 104px; }
+    .method-flow > * + * { margin-top: clamp(20px, 3vw, 32px); }
+    .method .steps { grid-template-columns: 1fr; gap: 14px; }
+    .method .step { display: grid; grid-template-columns: auto 1fr; column-gap: 20px; align-items: start; }
+    .method .step .num { margin-bottom: 0; }
+    .method .step h3 { margin-top: 2px; }
+  }
+  .method-head .btn { margin-top: 1.6rem; }
+
+  /* ---------- reveal + motion (JS-gated, reduced-motion safe, has a JS timeout safety net) ---------- */
   @media (prefers-reduced-motion: no-preference) {
-    .js .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .js .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
     .js .reveal.in { opacity: 1; transform: none; }
+
+    /* staggered children */
+    .js .reveal.stagger { opacity: 1; transform: none; }
+    .js .reveal.stagger > * { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+    .js .reveal.stagger.in > * { opacity: 1; transform: none; }
+    .js .reveal.stagger.in > *:nth-child(2) { transition-delay: 0.09s; }
+    .js .reveal.stagger.in > *:nth-child(3) { transition-delay: 0.18s; }
+    .js .reveal.stagger.in > *:nth-child(4) { transition-delay: 0.27s; }
+    .js .reveal.stagger.in > *:nth-child(5) { transition-delay: 0.36s; }
+
+    /* the word swap, performed on scroll-in (or on click of .swap-card) */
+    .js .swap-anim .del {
+      text-decoration: none;
+      background-image: linear-gradient(var(--blue), var(--blue));
+      background-repeat: no-repeat;
+      background-position: 0 62%;
+      background-size: 0% 2px;
+      transition: background-size 0.42s cubic-bezier(0.5, 0, 0.2, 1) 0.2s;
+    }
+    .js .swap-anim.in .del { background-size: 100% 2px; }
+
+    .js .swap-anim .after-line { opacity: 0; transform: translateY(10px); transition: opacity 0.5s ease 0.55s, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.55s; }
+    .js .swap-anim.in .after-line { opacity: 1; transform: none; }
+
+    .js .swap-anim mark {
+      background-color: transparent;
+      background-image: linear-gradient(var(--butter), var(--butter));
+      background-repeat: no-repeat;
+      background-position: 0 50%;
+      background-size: 0% 100%;
+      transition: background-size 0.5s cubic-bezier(0.5, 0.1, 0.2, 1) 0.95s;
+    }
+    .js .swap-anim.in mark { background-size: 100% 100%; }
+
+    /* subtle portrait parallax where supported */
+    @supports (animation-timeline: view()) {
+      .portrait-frame img {
+        animation: drift linear both;
+        animation-timeline: view();
+        animation-range: entry 0% exit 100%;
+      }
+      @keyframes drift { from { transform: translateY(-16px) scale(1.04); } to { transform: translateY(16px) scale(1.04); } }
+    }
   }
 </style>
 </head>
 <body>
+
+<div class="progress" id="progress" aria-hidden="true"></div>
 
 <header class="masthead">
   <div class="wrap">
@@ -428,12 +505,12 @@
           <a class="btn btn--workshop" href="#workshops">Book a workshop</a>
         </div>
       </div>
-      <div class="swap-card reveal" aria-label="An example word swap">
+      <div class="swap-card reveal swap-anim" aria-label="An example word swap" title="Replay">
         <div class="row">
           <span class="tag">Before</span>
           <p class="line" style="margin:0;">&ldquo;I <span class="del">always</span> mess this up.&rdquo;</p>
         </div>
-        <div class="row">
+        <div class="row after-line">
           <span class="tag">After</span>
           <p class="line" style="margin:0;">&ldquo;I&rsquo;ve messed this up before, and I&rsquo;m <mark>still learning</mark> what works.&rdquo;</p>
           <p class="foot">One word swapped. Took about two weeks of repeating it before it felt true.</p>
@@ -467,43 +544,51 @@
 
   <!-- METHOD -->
   <section class="section wrap method" id="method">
-    <div class="reveal">
-      <p class="kicker">The Word Swap Method&trade;</p>
-      <h2 class="h-lg">Catch the word. Name it. Swap it.</h2>
-      <p class="lede method-intro">Most of what keeps you stuck isn&rsquo;t a lack of effort. It&rsquo;s a word. The ones you reach for automatically when things get hard quietly decide how you feel, whether you try again, and how fast you move on.</p>
-    </div>
-
-    <div class="steps reveal">
-      <div class="step">
-        <span class="num">1</span>
-        <h3>Catch it</h3>
-        <p>Notice the sentence while it&rsquo;s still live in your head. Not later, in hindsight. In the moment.</p>
-      </div>
-      <div class="step">
-        <span class="num">2</span>
-        <h3>Name the word</h3>
-        <p>Find the one word doing the damage. Always. Never. Can&rsquo;t. Failure. It&rsquo;s usually smaller than you&rsquo;d think.</p>
-      </div>
-      <div class="step">
-        <span class="num">3</span>
-        <h3>Swap it</h3>
-        <p>Trade it for a word that&rsquo;s still honest, just forward-looking. Not a forced positive. A door left open.</p>
-      </div>
-    </div>
-
-    <div class="worked reveal">
-      <span class="tag">Worked example</span>
-      <p class="line" style="margin:0;">&ldquo;I <span class="del">always</span> mess this up.&rdquo;</p>
-      <span class="tag">Swap</span>
-      <p class="line" style="margin:0;">&ldquo;I&rsquo;ve messed this up before, and I&rsquo;m <mark>still learning</mark> what works.&rdquo;</p>
-      <p class="foot">&ldquo;Always&rdquo; wasn&rsquo;t accurate, and it closed the door on change. The swap took about two weeks of repeating before it felt true.</p>
-    </div>
-
-    <div class="method-note reveal">
-      <p class="stamp">Psychologists call this cognitive reframing. Decades of research back it. The Word Swap Method just makes it small enough to use mid-moment.</p>
-      <p>The swap is the entry point, not the whole fix. Underneath the one word are patterns you&rsquo;ve been running for years, the kind that are hard to see from the inside. Rebuilding those into a script you can actually use under pressure is the coaching work.</p>
-      <div class="btn-row">
+    <div class="method-inner">
+      <div class="method-head reveal">
+        <p class="kicker">The Word Swap Method&trade;</p>
+        <h2 class="h-lg">Catch the word. Name it. Swap it.</h2>
+        <p class="lede method-intro">Most of what keeps you stuck isn&rsquo;t a lack of effort. It&rsquo;s a word. The ones you reach for automatically when things get hard quietly decide how you feel, whether you try again, and how fast you move on.</p>
         <a class="btn btn--coach" href="#coaching">Book 1:1 coaching</a>
+      </div>
+
+      <div class="method-flow">
+        <div class="steps reveal stagger">
+          <div class="step">
+            <span class="num">1</span>
+            <div>
+              <h3>Catch it</h3>
+              <p>Notice the sentence while it&rsquo;s still live in your head. Not later, in hindsight. In the moment.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">2</span>
+            <div>
+              <h3>Name the word</h3>
+              <p>Find the one word doing the damage. Always. Never. Can&rsquo;t. Failure. It&rsquo;s usually smaller than you&rsquo;d think.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num">3</span>
+            <div>
+              <h3>Swap it</h3>
+              <p>Trade it for a word that&rsquo;s still honest, just forward-looking. Not a forced positive. A door left open.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="worked reveal swap-anim">
+          <span class="tag">Worked example</span>
+          <p class="line" style="margin:0;">&ldquo;I <span class="del">always</span> mess this up.&rdquo;</p>
+          <span class="tag">Swap</span>
+          <p class="line after-line" style="margin:0;">&ldquo;I&rsquo;ve messed this up before, and I&rsquo;m <mark>still learning</mark> what works.&rdquo;</p>
+          <p class="foot after-line">&ldquo;Always&rdquo; wasn&rsquo;t accurate, and it closed the door on change. The swap took about two weeks of repeating before it felt true.</p>
+        </div>
+
+        <div class="method-note reveal">
+          <p class="stamp">Psychologists call this cognitive reframing. Decades of research back it. The Word Swap Method just makes it small enough to use mid-moment.</p>
+          <p>The swap is the entry point, not the whole fix. Underneath the one word are patterns you&rsquo;ve been running for years, the kind that are hard to see from the inside. Rebuilding those into a script you can actually use under pressure is the coaching work.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -517,7 +602,7 @@
         <p class="lede">The method is the same in each package. The difference is how deep we go past the words to the beliefs underneath.</p>
       </div>
 
-      <div class="tiers reveal" style="margin-top: clamp(2.4rem, 5vw, 3.4rem);">
+      <div class="tiers reveal stagger" style="margin-top: clamp(2.4rem, 5vw, 3.4rem);">
         <div class="tier">
           <h3>4-Session Package</h3>
           <p class="who">For one clear pattern you want to shift.</p>
@@ -571,7 +656,7 @@
         <p class="lede">A root-cause mindset intervention, not a wellness afternoon. Practical, repeatable, and built to be used the same day.</p>
       </div>
 
-      <div class="work-grid reveal">
+      <div class="work-grid reveal stagger">
         <div class="work-card">
           <h3>For universities</h3>
           <p>First-year students, in the transition that makes or breaks confidence. A working session on catching the self-talk behind procrastination, impostor feelings, and &ldquo;I don&rsquo;t belong here.&rdquo;</p>
@@ -596,7 +681,7 @@
       <h2 class="h-lg contact-head">Ready to edit the script?</h2>
     </div>
 
-    <div class="paths reveal">
+    <div class="paths reveal stagger">
       <div class="path">
         <p><strong>Working on your own patterns.</strong> Private 1:1 coaching, built around the words and beliefs that keep showing up for you.</p>
         <a class="btn btn--coach" href="#book-call">Book 1:1 coaching</a>
@@ -628,15 +713,15 @@
       <a href="#workshops">Workshops</a>
       <a href="https://instagram.com/carineselftalkeditor">Instagram</a>
     </nav>
-    <p class="legal">The Word Swap Method&trade; is a trademark of Carine Kayali. &copy; 2026 Carineselftalkeditor.</p>
   </div>
 </footer>
 
 <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
 <script>
   (function () {
-    var reveals = [].slice.call(document.querySelectorAll(".reveal"));
-    function showAll() { reveals.forEach(function (el) { el.classList.add("in"); }); }
+    var animated = [].slice.call(document.querySelectorAll(".reveal, .swap-anim"));
+    function showAll() { animated.forEach(function (el) { el.classList.add("in"); }); }
+
     try {
       var motionOK = window.matchMedia("(prefers-reduced-motion: no-preference)").matches;
       if (!motionOK || !("IntersectionObserver" in window)) {
@@ -646,13 +731,52 @@
           entries.forEach(function (e) {
             if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
           });
-        }, { rootMargin: "0px 0px -10% 0px" });
-        reveals.forEach(function (el) { io.observe(el); });
-        // safety net: never leave content hidden
-        setTimeout(showAll, 2600);
+        }, { rootMargin: "0px 0px -12% 0px" });
+        animated.forEach(function (el) { io.observe(el); });
+        setTimeout(showAll, 2800); // safety net: never leave content hidden
       }
+
+      // replay the word swap when its card is clicked / activated
+      [].slice.call(document.querySelectorAll(".swap-anim")).forEach(function (card) {
+        function replay() {
+          if (!motionOK) return;
+          card.classList.remove("in");
+          void card.offsetWidth; // reflow so the transition restarts
+          requestAnimationFrame(function () { card.classList.add("in"); });
+        }
+        card.addEventListener("click", replay);
+      });
     } catch (e) { showAll(); }
+
+    // scroll progress bar + sticky-header shadow
+    try {
+      var bar = document.getElementById("progress");
+      var head = document.querySelector(".masthead");
+      var ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function () {
+          var h = document.documentElement;
+          var max = h.scrollHeight - h.clientHeight;
+          var p = max > 0 ? h.scrollTop / max : 0;
+          if (bar) bar.style.transform = "scaleX(" + p.toFixed(4) + ")";
+          if (head) head.classList.toggle("is-scrolled", h.scrollTop > 8);
+          ticking = false;
+        });
+      }
+      window.addEventListener("scroll", onScroll, { passive: true });
+      onScroll();
+    } catch (e) {}
   })();
+</script>
+<script>
+  /* independent safety net: if anything above failed, nothing stays hidden */
+  setTimeout(function () {
+    try {
+      document.querySelectorAll(".reveal, .swap-anim").forEach(function (el) { el.classList.add("in"); });
+    } catch (e) {}
+  }, 3200);
 </script>
 
 </body>
